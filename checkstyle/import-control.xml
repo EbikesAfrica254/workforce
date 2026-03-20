@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<!DOCTYPE import-control PUBLIC
+        "-//Checkstyle//DTD ImportControl Configuration 1.4//EN"
+        "https://checkstyle.org/dtds/import_control_1_4.dtd">
+
+<import-control pkg="com.ebikes.workforce" strategyOnMismatch="allowed">
+
+    <!--
+      Intentionally lean policy.
+
+      Goal:
+      - enforce only high-value layering boundaries
+      - avoid default-deny breakage across a single Spring Boot service
+      - let Spotless / ImportOrder handle formatting concerns separately
+    -->
+
+    <!-- ========================================================= -->
+    <!-- CONTROLLERS                                                -->
+    <!-- ========================================================= -->
+
+    <subpackage name="controllers" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.database.entities"/>
+        <disallow pkg="com.ebikes.workforce.database.entities.bases"/>
+        <disallow pkg="com.ebikes.workforce.database.repositories"/>
+        <disallow pkg="com.ebikes.workforce.database.specifications"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.publishers"/>
+        <disallow pkg="com.ebikes.workforce.adapters"/>
+    </subpackage>
+
+    <!-- ========================================================= -->
+    <!-- DATABASE                                                   -->
+    <!-- ========================================================= -->
+
+    <subpackage name="database.repositories" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.services"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.publishers"/>
+        <disallow pkg="com.ebikes.workforce.adapters"/>
+        <disallow pkg="com.ebikes.workforce.mappers"/>
+    </subpackage>
+
+    <subpackage name="database.specifications" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.services"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.publishers"/>
+        <disallow pkg="com.ebikes.workforce.adapters"/>
+        <disallow pkg="com.ebikes.workforce.mappers"/>
+    </subpackage>
+
+    <subpackage name="database.entities" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.services"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.publishers"/>
+    </subpackage>
+
+    <subpackage name="database.entities.bases" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.services"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.publishers"/>
+    </subpackage>
+
+    <!-- ========================================================= -->
+    <!-- DOMAIN                                                     -->
+    <!-- ========================================================= -->
+
+    <subpackage name="domain" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.database.repositories"/>
+        <disallow pkg="com.ebikes.workforce.database.specifications"/>
+        <disallow pkg="com.ebikes.workforce.services"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.publishers"/>
+        <disallow pkg="com.ebikes.workforce.adapters"/>
+        <disallow pkg="com.ebikes.workforce.configurations"/>
+        <disallow pkg="org.springframework"/>
+    </subpackage>
+
+    <!-- ========================================================= -->
+    <!-- ADAPTERS                                                   -->
+    <!-- ========================================================= -->
+
+    <subpackage name="adapters" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.database.repositories"/>
+        <disallow pkg="com.ebikes.workforce.database.specifications"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.publishers"/>
+    </subpackage>
+
+    <!-- ========================================================= -->
+    <!-- LISTENERS / PUBLISHERS                                     -->
+    <!-- ========================================================= -->
+
+    <subpackage name="listeners" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.database.repositories"/>
+        <disallow pkg="com.ebikes.workforce.database.specifications"/>
+        <disallow pkg="com.ebikes.workforce.database.entities"/>
+        <disallow pkg="com.ebikes.workforce.database.entities.bases"/>
+        <disallow pkg="com.ebikes.workforce.services.pricing"/>
+        <disallow pkg="com.ebikes.workforce.services.workforce"/>
+        <disallow pkg="com.ebikes.workforce.mappers"/>
+        <disallow pkg="com.ebikes.workforce.adapters"/>
+    </subpackage>
+
+    <subpackage name="publishers" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.database.repositories"/>
+        <disallow pkg="com.ebikes.workforce.database.specifications"/>
+        <disallow pkg="com.ebikes.workforce.database.entities"/>
+        <disallow pkg="com.ebikes.workforce.database.entities.bases"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.mappers"/>
+        <disallow pkg="com.ebikes.workforce.adapters"/>
+    </subpackage>
+
+    <!-- ========================================================= -->
+    <!-- SUPPORT                                                    -->
+    <!-- ========================================================= -->
+
+    <subpackage name="support.context" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.database.repositories"/>
+        <disallow pkg="com.ebikes.workforce.database.specifications"/>
+        <disallow pkg="com.ebikes.workforce.services"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.publishers"/>
+    </subpackage>
+
+    <subpackage name="support.references" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.database.repositories"/>
+        <disallow pkg="com.ebikes.workforce.database.specifications"/>
+        <disallow pkg="com.ebikes.workforce.services"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.publishers"/>
+        <disallow pkg="org.springframework"/>
+    </subpackage>
+
+    <subpackage name="support.database" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.services"/>
+        <disallow pkg="com.ebikes.workforce.database.repositories"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.publishers"/>
+    </subpackage>
+
+    <subpackage name="support.security" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.workforce.controllers"/>
+        <disallow pkg="com.ebikes.workforce.database.repositories"/>
+        <disallow pkg="com.ebikes.workforce.database.specifications"/>
+        <disallow pkg="com.ebikes.workforce.services"/>
+        <disallow pkg="com.ebikes.workforce.listeners"/>
+        <disallow pkg="com.ebikes.workforce.publishers"/>
+    </subpackage>
+
+</import-control>
