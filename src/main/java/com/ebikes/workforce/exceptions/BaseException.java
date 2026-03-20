@@ -17,5 +17,4 @@ public abstract class BaseException extends RuntimeException {
     super(developerMessage);
     this.responseCode = responseCode;
   }
-
 }

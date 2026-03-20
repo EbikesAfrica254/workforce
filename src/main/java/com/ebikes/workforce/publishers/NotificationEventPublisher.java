@@ -1,8 +1,8 @@
 package com.ebikes.workforce.publishers;
 
-import com.ebikes.workforce.configurations.properties.NotificationProperties;
 import org.springframework.stereotype.Component;
 
+import com.ebikes.workforce.configurations.properties.NotificationProperties;
 import com.ebikes.workforce.constants.EventConstants.RoutingKeys;
 import com.ebikes.workforce.dtos.events.outgoing.NotificationRequest;
 import com.ebikes.workforce.enums.ChannelType;
@@ -22,7 +22,7 @@ public class NotificationEventPublisher {
   public void publish(NotificationRequest request) {
     String routingKey = resolveRoutingKey(request.channel());
 
-    if (properties.isEnabled()){
+    if (properties.isEnabled()) {
       outboxService.save(request.eventType(), request, routingKey);
     } else {
       log.info("Notification event skipped - notifications are disabled");

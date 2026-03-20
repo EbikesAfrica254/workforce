@@ -1,16 +1,18 @@
 package com.ebikes.workforce.services.storage;
 
+import java.time.Duration;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
 import com.ebikes.workforce.configurations.properties.AwsProperties;
 import com.ebikes.workforce.dtos.internal.UploadUrlData;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-
-import java.time.Duration;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Service

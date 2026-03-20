@@ -43,27 +43,27 @@ public class EventConstants {
       public static final String ORDER_DELIVERED = "order.delivered";
       public static final String ORDER_PENDING_ASSIGNMENT = "orders.order.pending-assignment";
       public static final String ORDER_REASSIGNMENT_REQUESTED =
-              "orders.order.reassignment-requested";
+          "orders.order.reassignment-requested";
     }
 
     @UtilityClass
     public static final class Workforce {
       public static final String AGENT_APPROVED = EventSource.HOST + ".agent.approved";
       public static final String AGENT_AVAILABILITY_CHANGED =
-              EventSource.HOST + ".agent.availability-changed";
+          EventSource.HOST + ".agent.availability-changed";
       public static final String AGENT_CREATED = EventSource.HOST + ".agent.created";
       public static final String AGENT_DEACTIVATED = EventSource.HOST + ".agent.deactivated";
       public static final String AGENT_LOCATION_UPDATED =
-              EventSource.HOST + ".agent.location-updated";
+          EventSource.HOST + ".agent.location-updated";
       public static final String AGENT_REJECTED = EventSource.HOST + ".agent.rejected";
       public static final String AGENT_RESUBMITTED = EventSource.HOST + ".agent.resubmitted";
       public static final String AGENT_SHORTLIST_EMPTY =
-              EventSource.HOST + ".agent_shortlist.empty";
+          EventSource.HOST + ".agent_shortlist.empty";
       public static final String AGENT_SHORTLIST_RESOLVED =
-              EventSource.HOST + ".agent_shortlist.resolved";
+          EventSource.HOST + ".agent_shortlist.resolved";
       public static final String AGENT_SUSPENDED = EventSource.HOST + ".agent.suspended";
       public static final String AGENT_SUSPENSION_LIFTED =
-              EventSource.HOST + ".agent.suspension-lifted";
+          EventSource.HOST + ".agent.suspension-lifted";
       public static final String AGENT_UPDATED = EventSource.HOST + ".agent.updated";
     }
   }
@@ -81,36 +81,35 @@ public class EventConstants {
     // outbound — audit
     public static final String WORKFORCE_AGENT_AUDIT = audit(EventSource.HOST + ".agent");
     public static final String WORKFORCE_CERTIFICATION_AUDIT =
-            audit(EventSource.HOST + ".certification");
+        audit(EventSource.HOST + ".certification");
     public static final String WORKFORCE_DOCUMENT_AUDIT = audit(EventSource.HOST + ".document");
     public static final String WORKFORCE_PAYMENT_METHOD_AUDIT =
-            audit(EventSource.HOST + ".payment-method");
+        audit(EventSource.HOST + ".payment-method");
     public static final String WORKFORCE_PREFERRED_AGENT_AUDIT =
-            audit(EventSource.HOST + ".preferred-agent");
-    public static final String WORKFORCE_SUSPENSION_AUDIT =
-            audit(EventSource.HOST + ".suspension");
+        audit(EventSource.HOST + ".preferred-agent");
+    public static final String WORKFORCE_SUSPENSION_AUDIT = audit(EventSource.HOST + ".suspension");
 
     // outbound — domain events
     public static final String WORKFORCE_AGENT_AVAILABILITY_CHANGED =
-            EventTypes.Workforce.AGENT_AVAILABILITY_CHANGED;
+        EventTypes.Workforce.AGENT_AVAILABILITY_CHANGED;
     public static final String WORKFORCE_AGENT_LOCATION_UPDATED =
-            EventTypes.Workforce.AGENT_LOCATION_UPDATED;
+        EventTypes.Workforce.AGENT_LOCATION_UPDATED;
     public static final String WORKFORCE_SHORTLIST_EMPTY =
-            EventTypes.Workforce.AGENT_SHORTLIST_EMPTY;
+        EventTypes.Workforce.AGENT_SHORTLIST_EMPTY;
     public static final String WORKFORCE_SHORTLIST_RESOLVED =
-            EventTypes.Workforce.AGENT_SHORTLIST_RESOLVED;
+        EventTypes.Workforce.AGENT_SHORTLIST_RESOLVED;
 
     // inbound
     public static final String ASSIGNMENTS_ASSIGNMENT_SUCCEEDED =
-            EventSource.ASSIGNMENTS + "." + EventTypes.Assignments.ASSIGNMENT_SUCCEEDED;
+        EventSource.ASSIGNMENTS + "." + EventTypes.Assignments.ASSIGNMENT_SUCCEEDED;
     public static final String ORDERS_ORDER_CANCELLED =
-            EventSource.ORDERS + "." + EventTypes.Orders.ORDER_CANCELLED;
+        EventSource.ORDERS + "." + EventTypes.Orders.ORDER_CANCELLED;
     public static final String ORDERS_ORDER_DELIVERED =
-            EventSource.ORDERS + "." + EventTypes.Orders.ORDER_DELIVERED;
+        EventSource.ORDERS + "." + EventTypes.Orders.ORDER_DELIVERED;
     public static final String ORDERS_ORDER_PENDING_ASSIGNMENT =
-            EventSource.ORDERS + "." + EventTypes.Orders.ORDER_PENDING_ASSIGNMENT;
+        EventSource.ORDERS + "." + EventTypes.Orders.ORDER_PENDING_ASSIGNMENT;
     public static final String ORDERS_ORDER_REASSIGNMENT_REQUESTED =
-            EventSource.ORDERS + "." + EventTypes.Orders.ORDER_REASSIGNMENT_REQUESTED;
+        EventSource.ORDERS + "." + EventTypes.Orders.ORDER_REASSIGNMENT_REQUESTED;
 
     // notifications
     public static final String NOTIFICATIONS_EMAIL = notifications("email");
@@ -123,8 +122,10 @@ public class EventConstants {
     }
 
     public static String makerCheckerRequest(String sourceService, String entityType) {
-      return sourceService + "." + entityType.toLowerCase().replace("_", "-")
-              + ".maker-checker-request";
+      return sourceService
+          + "."
+          + entityType.toLowerCase().replace("_", "-")
+          + ".maker-checker-request";
     }
 
     public static String notifications(String channel) {

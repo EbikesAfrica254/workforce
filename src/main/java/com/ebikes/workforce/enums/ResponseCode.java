@@ -76,5 +76,4 @@ public enum ResponseCode {
   private final String code;
   private final String userMessage;
   private final HttpStatus httpStatus;
-
 }
