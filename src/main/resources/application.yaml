@@ -1,0 +1,133 @@
+logging:
+  level:
+    root: INFO
+    com.ebikes.workforce: INFO
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  metrics:
+    tags:
+      application: ebikes-workforce
+  server:
+    port: ${MANAGEMENT_SERVER_PORT:9091}
+
+notifications:
+  enabled: ${NOTIFICATIONS_ENABLED}
+
+security:
+  public-endpoints:
+    - /actuator/health
+    - /actuator/prometheus
+  scopes:
+    - email
+    - openid
+    - profile
+
+server:
+  port: ${SERVER_PORT:8091}
+  servlet:
+    context-path: /ebikes-workforce
+
+spring:
+  application:
+    name: ebikes-workforce
+
+  cloud:
+    stream:
+      output-bindings: eventPublisher-out-0
+      bindings:
+        incomingEventConsumer-in-0:
+          destination: ebikes.domain-events
+          group: ebikes.workforce.incoming
+        eventPublisher-out-0:
+          destination: ebikes.domain-events
+      rabbit:
+        bindings:
+          incomingEventConsumer-in-0:
+            consumer:
+              bindQueue: false
+              declareExchange: false
+              queueNameGroupOnly: true
+          eventPublisher-out-0:
+            producer:
+              declareExchange: false
+              routingKeyExpression: "headers['routingKey']"
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:10}
+      minimum-idle: ${SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE:2}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: workforce
+        format_sql: false
+        show_sql: false
+
+  liquibase:
+    change-log: classpath:database/changelog/changelog-main.yaml
+    enabled: true
+    liquibase-schema: workforce
+    parameters:
+      searchPath: classpath:database/changelog/
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
+          jwk-set-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI}
+
+  task:
+    scheduling:
+      pool:
+        size: 2
+
+aws:
+  s3:
+    bucket-name: ${AWS_S3_BUCKET_NAME}
+    endpoint: ${AWS_S3_ENDPOINT:}
+    max-file-size-mb: ${AWS_S3_MAX_FILE_SIZE_MB:10}
+    presigned-url-expiry-minutes: ${AWS_S3_PRESIGNED_URL_EXPIRY_MINUTES:15}
+    preview-url-expiry-minutes: ${AWS_S3_PREVIEW_URL_EXPIRY_MINUTES:5}
+    region: ${AWS_S3_REGION}
+
+javers:
+  auditableAspectEnabled: ${JAVERS_AUDITABLE_ASPECT_ENABLED:false}
+  mappingStyle: ${JAVERS_MAPPING_STYLE:FIELD}
+  prettyPrint: false
+  springDataAuditableRepositoryAspectEnabled: false
+  sqlSchemaManagementEnabled: ${JAVERS_SQL_SCHEMA_MANAGEMENT_ENABLED:false}
+  typeSafeValues: false
+
+workforce:
+  h3:
+    resolution: 9
+    ring-size: 2
+  jobs:
+    certification-compliance:
+      cron: ${WORKFORCE_CERTIFICATION_COMPLIANCE_CRON}
+    document-compliance:
+      cron: ${WORKFORCE_DOCUMENT_COMPLIANCE_CRON}
+  shortlist:
+    default-ring-size: ${WORKFORCE_SHORTLIST_DEFAULT_RING_SIZE:2}
+    expiry-seconds: ${WORKFORCE_SHORTLIST_EXPIRY_SECONDS}
+    fresh-threshold-minutes: ${WORKFORCE_SHORTLIST_FRESH_THRESHOLD_MINUTES:10}

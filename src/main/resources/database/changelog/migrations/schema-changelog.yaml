@@ -1,0 +1,90 @@
+databaseChangeLog:
+  - changeSet:
+      id: 01-inbox
+      author: mango-habanero
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: schema/01-inbox.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 02-outbox
+      author: mango-habanero
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: schema/02-outbox.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 03-agents
+      author: mango-habanero
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: schema/03-agents.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 04-suspensions
+      author: mango-habanero
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: schema/04-suspensions.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 05-documents
+      author: mango-habanero
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: schema/05-documents.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 06-availability-log
+      author: mango-habanero
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: schema/06-availability-log.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 07-location-history
+      author: mango-habanero
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: schema/07-location-history.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 08-certifications
+      author: mango-habanero
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: schema/08-certifications.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 09-payment-methods
+      author: mango-habanero
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: schema/09-payment-methods.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: 10-preferred-agents
+      author: mango-habanero
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: schema/10-preferred-agents.sql
+            relativeToChangelogFile: true
