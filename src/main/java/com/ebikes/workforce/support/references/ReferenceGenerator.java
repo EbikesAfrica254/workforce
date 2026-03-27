@@ -14,7 +14,7 @@ public final class ReferenceGenerator {
   private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   private ReferenceGenerator() {
-    // prevent instantiaton
+    // prevent instantiation
   }
 
   public static String generateErrorReference() {
