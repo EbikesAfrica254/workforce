@@ -9,6 +9,7 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import com.ebikes.workforce.constants.EventConstants.EventSource;
 import com.ebikes.workforce.dtos.internal.FieldChange;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -28,5 +29,6 @@ public record MakerCheckerRequest(
   public MakerCheckerRequest {
     changes = changes == null ? null : List.copyOf(changes);
     operationContext = operationContext == null ? null : Map.copyOf(operationContext);
+    serviceReference = serviceReference == null ? EventSource.serviceReference() : serviceReference;
   }
 }
