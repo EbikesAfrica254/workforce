@@ -177,7 +177,7 @@ jobs:
               --instance-ids "${INSTANCE_ID}" \
               --document-name "AWS-RunShellScript" \
               --comment "Deploy workforce sha-${SHORT_SHA}" \
-              --parameters commands="/usr/local/bin/deploy-application.sh deploy workforce ${DEPLOYMENT_REFERENCE}" \
+              --parameters commands="/usr/local/bin/ebikes-deploy-backend deploy workforce ${DEPLOYMENT_REFERENCE}" \
               --query 'Command.CommandId' \
               --output text
           )"
