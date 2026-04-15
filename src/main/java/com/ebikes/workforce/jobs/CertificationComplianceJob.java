@@ -11,14 +11,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ebikes.workforce.database.entities.Certification;
 import com.ebikes.workforce.database.repositories.AgentRepository;
 import com.ebikes.workforce.database.repositories.CertificationRepository;
 import com.ebikes.workforce.enums.AvailabilityStatus;
 import com.ebikes.workforce.enums.CapabilityClass;
 import com.ebikes.workforce.enums.CertificationType;
-import com.ebikes.workforce.services.agents.AgentService;
-import com.ebikes.workforce.support.context.ExecutionContext;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,16 +31,10 @@ public class CertificationComplianceJob {
           .distinct()
           .toList();
 
-  private static final Set<CapabilityClass> CERTIFICATION_REQUIRED_CAPABILITY_CLASSES =
-      Arrays.stream(CapabilityClass.values())
-          .filter(c -> !c.getRequiredCertifications().isEmpty())
-          .collect(Collectors.toSet());
-
   private static final Set<AvailabilityStatus> TRANSITIONABLE_STATUSES =
       Set.of(AvailabilityStatus.AVAILABLE, AvailabilityStatus.BUSY, AvailabilityStatus.OFFLINE);
 
   private final AgentRepository agentRepository;
-  private final AgentService agentService;
   private final CertificationRepository certificationRepository;
 
   @Scheduled(cron = "${workforce.jobs.certification-compliance.cron}")
@@ -52,40 +43,30 @@ public class CertificationComplianceJob {
     LocalDate today = LocalDate.now();
     log.info("Running certification compliance check: asOf={}", today);
 
-    ExecutionContext.setSystem();
-    try {
-      List<Certification> expiredCertifications =
-          certificationRepository.findExpiredRequiredCertifications(
-              today, REQUIRED_CERTIFICATION_TYPES);
+    List<com.ebikes.workforce.database.entities.Certification> expiredCertifications =
+        certificationRepository.findExpiredRequiredCertifications(
+            today, REQUIRED_CERTIFICATION_TYPES);
 
-      if (expiredCertifications.isEmpty()) {
-        log.info("Certification compliance check complete: no expired certifications found");
-        return;
-      }
-
-      Set<UUID> affectedAgentIds =
-          expiredCertifications.stream().map(Certification::getAgentId).collect(Collectors.toSet());
-
-      log.info(
-          "Expired certifications found: count={}, affectedAgents={}",
-          expiredCertifications.size(),
-          affectedAgentIds.size());
-
-      agentRepository.findAllById(affectedAgentIds).stream()
-          .filter(
-              agent ->
-                  CERTIFICATION_REQUIRED_CAPABILITY_CLASSES.contains(agent.getCapabilityClass()))
-          .filter(agent -> TRANSITIONABLE_STATUSES.contains(agent.getAvailabilityStatus()))
-          .forEach(
-              agent ->
-                  agentService.updateAvailability(
-                      agent.getId(),
-                      AvailabilityStatus.UNAVAILABLE,
-                      "Required certification expired"));
-
-      log.info("Certification compliance check complete: asOf={}", today);
-    } finally {
-      ExecutionContext.clear();
+    if (expiredCertifications.isEmpty()) {
+      log.info("Certification compliance check complete: no expired certifications found");
+      return;
     }
+
+    Set<UUID> affectedAgentIds =
+        expiredCertifications.stream()
+            .map(com.ebikes.workforce.database.entities.Certification::getAgentId)
+            .collect(Collectors.toSet());
+
+    log.info(
+        "Expired certifications found: count={}, affectedAgents={}",
+        expiredCertifications.size(),
+        affectedAgentIds.size());
+
+    int updated = agentRepository.bulkMarkUnavailable(affectedAgentIds, TRANSITIONABLE_STATUSES);
+
+    log.info(
+        "Certification compliance check complete: agentsMarkedUnavailable={}, asOf={}",
+        updated,
+        today);
   }
 }

@@ -8,8 +8,8 @@ import lombok.Setter;
 
 @Component
 @ConfigurationProperties(prefix = "workforce.h3")
-@Getter
 @Setter
+@Getter
 public class H3Properties {
 
   private int resolution = 9;

@@ -30,6 +30,50 @@ public class SnapshotCreator {
 
   private final ObjectMapper objectMapper;
 
+  public List<FieldChange> extractChanges(Object request, Object existing) {
+    if (request == null || existing == null) {
+      throw new IllegalArgumentException("Request and existing object cannot be null");
+    }
+
+    BeanWrapper requestWrapper = new BeanWrapperImpl(request);
+    BeanWrapper existingWrapper = new BeanWrapperImpl(existing);
+    PropertyDescriptor[] descriptors = requestWrapper.getPropertyDescriptors();
+    List<FieldChange> changes = new ArrayList<>(descriptors.length);
+
+    for (PropertyDescriptor descriptor : descriptors) {
+      String fieldName = descriptor.getName();
+
+      try {
+        Object requestValue = requestWrapper.getPropertyValue(fieldName);
+
+        if (EXCLUDED_FIELDS.contains(fieldName) || requestValue == null) {
+          continue;
+        }
+
+        Object existingValue =
+            existingWrapper.isReadableProperty(fieldName)
+                ? existingWrapper.getPropertyValue(fieldName)
+                : null;
+
+        String serializedNew = serializeValue(requestValue);
+        String serializedOld = existingValue != null ? serializeValue(existingValue) : null;
+
+        if (!serializedNew.equals(serializedOld)) {
+          FieldType fieldType = FieldTypeDetector.detectFieldType(requestValue);
+          changes.add(new FieldChange(fieldName, fieldType, serializedNew, serializedOld));
+        }
+      } catch (Exception e) {
+        log.warn(
+            "Failed to extract change for field '{}' from {}: {}",
+            fieldName,
+            request.getClass().getSimpleName(),
+            e.getMessage());
+      }
+    }
+
+    return changes;
+  }
+
   public List<FieldChange> extractFields(Object entity) {
     if (entity == null) {
       throw new IllegalArgumentException("Entity cannot be null");

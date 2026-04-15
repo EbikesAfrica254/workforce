@@ -44,7 +44,7 @@ spring:
       bindings:
         incomingEventConsumer-in-0:
           destination: ebikes.domain-events
-          group: ebikes.workforce.incoming
+          group: ebikes.capability.incoming
         eventPublisher-out-0:
           destination: ebikes.domain-events
       rabbit:
@@ -76,6 +76,9 @@ spring:
         default_schema: workforce
         format_sql: false
         show_sql: false
+        type:
+          json_format_mapper: com.ebikes.workforce.configurations.HibernateJsonFormatMapperConfiguration
+
 
   liquibase:
     change-log: classpath:database/changelog/changelog-main.yaml

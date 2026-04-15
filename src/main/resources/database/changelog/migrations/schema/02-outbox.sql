@@ -14,7 +14,7 @@ CREATE TABLE workforce.outbox (
 --comment: add check constraints for the outbox table
 ALTER TABLE workforce.outbox
     ADD CONSTRAINT chk_outbox_status
-        CHECK (status IN ('PENDING', 'SENT', 'FAILED'));
+        CHECK (status IN ('DEAD_LETTER', 'FAILED', 'PENDING', 'SENT'));
 
 ALTER TABLE workforce.outbox
     ADD CONSTRAINT chk_outbox_retry_count

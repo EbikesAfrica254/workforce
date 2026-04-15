@@ -1,6 +1,5 @@
 package com.ebikes.workforce.database.entities;
 
-import java.io.Serial;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -17,10 +16,12 @@ import com.ebikes.workforce.enums.AvailabilityStatus;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 @Table(
     name = "availability_log",
     schema = "workforce",
@@ -29,8 +30,6 @@ import lombok.NoArgsConstructor;
       @Index(name = "idx_availability_log_created_at", columnList = "created_at")
     })
 public class AvailabilityLog extends BaseEntity {
-
-  @Serial private static final long serialVersionUID = 1L;
 
   @Column(name = "agent_id", nullable = false, updatable = false)
   @NotNull private UUID agentId;
@@ -46,11 +45,13 @@ public class AvailabilityLog extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @NotNull private AvailabilityStatus toStatus;
 
-  public AvailabilityLog(
+  public static AvailabilityLog create(
       UUID agentId, AvailabilityStatus fromStatus, AvailabilityStatus toStatus, String reason) {
-    this.agentId = agentId;
-    this.fromStatus = fromStatus;
-    this.toStatus = toStatus;
-    this.reason = reason;
+    return AvailabilityLog.builder()
+        .agentId(agentId)
+        .fromStatus(fromStatus)
+        .toStatus(toStatus)
+        .reason(reason)
+        .build();
   }
 }

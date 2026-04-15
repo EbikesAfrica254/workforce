@@ -36,7 +36,7 @@ CREATE UNIQUE INDEX uq_preferred_agents_org_agent
 -- comment: add table and column comments for the preferred_agents table
 COMMENT ON TABLE workforce.preferred_agents IS
     'Organisation-scoped ordered agent preference lists. Consumed by Assignment Strategy when '
-        'selecting agents for.workforce.belonging to a given organisation. Priority is a positive integer — '
+        'selecting agents for workforce belonging to a given organisation. Priority is a positive integer — '
         'ascending order determines preference. Gaps are permitted, no renumbering required on removal. '
         'organisation_id is a cross-service reference to the Organizations context — no FK constraint.';
 

@@ -1,8 +1,10 @@
 package com.ebikes.workforce.database.entities;
 
-import java.io.Serial;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -17,14 +19,17 @@ import jakarta.validation.constraints.Size;
 import com.ebikes.workforce.database.entities.bases.AuditableEntity;
 import com.ebikes.workforce.enums.ResponseCode;
 import com.ebikes.workforce.exceptions.BusinessRuleException;
+import com.ebikes.workforce.support.audit.Auditable;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 @Table(
     name = "suspensions",
     schema = "workforce",
@@ -33,9 +38,7 @@ import lombok.NoArgsConstructor;
       @Index(name = "idx_suspensions_expires_at", columnList = "expires_at"),
       @Index(name = "idx_suspensions_reason", columnList = "reason")
     })
-public class Suspension extends AuditableEntity {
-
-  @Serial private static final long serialVersionUID = 1L;
+public class Suspension extends AuditableEntity implements Auditable {
 
   @Column(name = "agent_id", nullable = false, updatable = false)
   @NotNull private UUID agentId;
@@ -59,14 +62,6 @@ public class Suspension extends AuditableEntity {
   @Version
   private Long version;
 
-  public Suspension(UUID agentId, String reason, OffsetDateTime expiresAt, String notes) {
-    this.agentId = agentId;
-    this.reason = reason;
-    this.expiresAt = expiresAt;
-    this.notes = notes;
-    this.version = 0L;
-  }
-
   public boolean isActive() {
     return this.liftedAt == null;
   }
@@ -79,5 +74,24 @@ public class Suspension extends AuditableEntity {
     }
     this.liftedAt = OffsetDateTime.now(ZoneOffset.UTC);
     this.liftedBy = liftedByUserId;
+  }
+
+  @Override
+  public Map<String, String> toAuditMetadata() {
+    Map<String, String> metadata = new HashMap<>();
+    metadata.put("agentId", this.getAgentId().toString());
+    metadata.put("isActive", String.valueOf(this.isActive()));
+    metadata.put("reason", this.getReason());
+    metadata.put("suspensionId", this.getId().toString());
+    if (this.getExpiresAt() != null) {
+      metadata.put("expiresAt", this.getExpiresAt().toString());
+    }
+    if (this.getLiftedAt() != null) {
+      metadata.put("liftedAt", this.getLiftedAt().toString());
+    }
+    if (this.getLiftedBy() != null) {
+      metadata.put("liftedBy", this.getLiftedBy());
+    }
+    return Collections.unmodifiableMap(metadata);
   }
 }

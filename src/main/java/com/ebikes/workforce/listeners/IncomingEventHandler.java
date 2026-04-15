@@ -1,10 +1,8 @@
 package com.ebikes.workforce.listeners;
 
-import java.io.IOException;
-
 public interface IncomingEventHandler {
 
-  void handle(byte[] payload) throws IOException;
+  void handle(byte[] payload);
 
   boolean matches(String routingKey);
 }

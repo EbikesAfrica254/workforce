@@ -1,0 +1,32 @@
+package com.ebikes.workforce.publishers;
+
+import org.springframework.stereotype.Component;
+
+import com.ebikes.workforce.dtos.events.outgoing.MakerCheckerRequest;
+import com.ebikes.workforce.services.events.OutboxService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class MakerCheckerRequestPublisher {
+
+  private final OutboxService outboxService;
+
+  public void publish(MakerCheckerRequest request, String routingKey) {
+    log.debug(
+        "Submitting maker-checker request: entityType={}, entityId={}, makerId={}",
+        request.entityType(),
+        request.entityId(),
+        request.makerId());
+
+    outboxService.publish(request.entityType(), request, routingKey);
+
+    log.info(
+        "Maker-checker request queued: entityType={}, entityId={}",
+        request.entityType(),
+        request.entityId());
+  }
+}

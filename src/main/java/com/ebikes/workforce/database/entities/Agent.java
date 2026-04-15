@@ -1,9 +1,11 @@
 package com.ebikes.workforce.database.entities;
 
-import java.io.Serial;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,14 +30,19 @@ import com.ebikes.workforce.enums.LocationSource;
 import com.ebikes.workforce.enums.NationalIdType;
 import com.ebikes.workforce.enums.ResponseCode;
 import com.ebikes.workforce.exceptions.BusinessRuleException;
+import com.ebikes.workforce.support.audit.Auditable;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 @Table(
     name = "agents",
     schema = "workforce",
@@ -47,21 +54,23 @@ import lombok.NoArgsConstructor;
       @Index(name = "idx_agents_capability_class", columnList = "capability_class"),
       @Index(name = "idx_agents_h3_index", columnList = "current_h3_index")
     })
-public class Agent extends AuditableEntity {
+public class Agent extends AuditableEntity implements Auditable {
 
-  @Serial private static final long serialVersionUID = 1L;
-
-  @Column(name = "alternate_phone_number", length = 20)
-  @Pattern(regexp = "^\\+[1-9]\\d{1,14}$") @Size(max = 20) private String alternatePhoneNumber;
-
+  @Builder.Default
   @Column(name = "availability_status", nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
   @NotNull private AvailabilityStatus availabilityStatus = AvailabilityStatus.PENDING;
 
+  @Setter(AccessLevel.PACKAGE)
+  @Column(name = "alternate_phone_number", length = 20)
+  @Pattern(regexp = "^\\+[1-9]\\d{1,14}$") @Size(max = 20) private String alternatePhoneNumber;
+
+  @Setter(AccessLevel.PACKAGE)
   @Column(name = "capability_class", nullable = false, length = 25)
   @Enumerated(EnumType.STRING)
   @NotNull private CapabilityClass capabilityClass;
 
+  @Builder.Default
   @Column(name = "completed_delivery_count", nullable = false)
   @Min(0) private Integer completedDeliveryCount = 0;
 
@@ -74,9 +83,11 @@ public class Agent extends AuditableEntity {
   @Column(name = "current_longitude", precision = 11, scale = 8)
   @DecimalMax(value = "180.0") @DecimalMin(value = "-180.0") private BigDecimal currentLongitude;
 
+  @Builder.Default
   @Column(name = "current_orders", nullable = false)
-  @Min(0) private Integer currentOrders;
+  @Min(0) private Integer currentOrders = 0;
 
+  @Setter(AccessLevel.PACKAGE)
   @Column(name = "email")
   @Email @Size(max = 255) private String email;
 
@@ -93,16 +104,19 @@ public class Agent extends AuditableEntity {
   @Enumerated(EnumType.STRING)
   private LocationSource locationSource;
 
+  @Setter(AccessLevel.PACKAGE)
   @Column(name = "max_concurrent_orders", nullable = false)
   @Min(1) private Short maxConcurrentOrders;
 
   @Column(name = "national_id_number", nullable = false, unique = true, length = 20)
   @NotBlank @Size(max = 20) private String nationalIdNumber;
 
+  @Builder.Default
   @Column(name = "national_id_type", nullable = false, length = 20)
   @Enumerated(EnumType.STRING)
   @NotNull private NationalIdType nationalIdType = NationalIdType.NATIONAL_ID;
 
+  @Builder.Default
   @Column(name = "on_time_delivery_count", nullable = false)
   @Min(0) private Integer onTimeDeliveryCount = 0;
 
@@ -118,99 +132,10 @@ public class Agent extends AuditableEntity {
   @Column(name = "user_id", nullable = false, updatable = false, length = 36)
   @NotBlank @Size(max = 36) private String userId;
 
+  @Builder.Default
   @Column(nullable = false)
   @Version
-  private Long version;
-
-  private Agent(Builder builder) {
-    this.availabilityStatus = AvailabilityStatus.PENDING;
-    this.alternatePhoneNumber = builder.alternatePhoneNumber;
-    this.capabilityClass = builder.capabilityClass;
-    this.currentOrders = 0;
-    this.email = builder.email;
-    this.firstName = builder.firstName;
-    this.lastName = builder.lastName;
-    this.maxConcurrentOrders = builder.maxConcurrentOrders;
-    this.nationalIdNumber = builder.nationalIdNumber;
-    this.nationalIdType = builder.nationalIdType;
-    this.phoneNumber = builder.phoneNumber;
-    this.userId = builder.userId;
-    this.version = 0L;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static final class Builder {
-
-    private String alternatePhoneNumber;
-    private CapabilityClass capabilityClass;
-    private String email;
-    private String firstName;
-    private String lastName;
-    private Short maxConcurrentOrders;
-    private String nationalIdNumber;
-    private NationalIdType nationalIdType = NationalIdType.NATIONAL_ID;
-    private String phoneNumber;
-    private String userId;
-
-    private Builder() {}
-
-    public Builder alternatePhoneNumber(String alternatePhoneNumber) {
-      this.alternatePhoneNumber = alternatePhoneNumber;
-      return this;
-    }
-
-    public Builder capabilityClass(CapabilityClass capabilityClass) {
-      this.capabilityClass = capabilityClass;
-      return this;
-    }
-
-    public Builder email(String email) {
-      this.email = email;
-      return this;
-    }
-
-    public Builder firstName(String firstName) {
-      this.firstName = firstName;
-      return this;
-    }
-
-    public Builder lastName(String lastName) {
-      this.lastName = lastName;
-      return this;
-    }
-
-    public Builder maxConcurrentOrders(Short maxConcurrentOrders) {
-      this.maxConcurrentOrders = maxConcurrentOrders;
-      return this;
-    }
-
-    public Builder nationalIdNumber(String nationalIdNumber) {
-      this.nationalIdNumber = nationalIdNumber;
-      return this;
-    }
-
-    public Builder nationalIdType(NationalIdType nationalIdType) {
-      this.nationalIdType = nationalIdType;
-      return this;
-    }
-
-    public Builder phoneNumber(String phoneNumber) {
-      this.phoneNumber = phoneNumber;
-      return this;
-    }
-
-    public Builder userId(String userId) {
-      this.userId = userId;
-      return this;
-    }
-
-    public Agent build() {
-      return new Agent(this);
-    }
-  }
+  private Long version = 0L;
 
   public void approve() {
     if (this.availabilityStatus != AvailabilityStatus.PENDING) {
@@ -334,16 +259,18 @@ public class Agent extends AuditableEntity {
     this.availabilityStatus = AvailabilityStatus.SUSPENDED;
   }
 
-  public void updateAlternatePhoneNumber(String alternatePhoneNumber) {
-    this.alternatePhoneNumber = alternatePhoneNumber;
-  }
-
-  public void updateCapabilityClass(CapabilityClass capabilityClass) {
-    this.capabilityClass = capabilityClass;
-  }
-
-  public void updateEmail(String email) {
-    this.email = email;
+  @Override
+  public Map<String, String> toAuditMetadata() {
+    Map<String, String> metadata = new HashMap<>();
+    metadata.put("availabilityStatus", this.getAvailabilityStatus().name());
+    metadata.put("capabilityClass", this.getCapabilityClass().name());
+    metadata.put("id", this.getId().toString());
+    metadata.put("phoneNumber", this.getPhoneNumber());
+    metadata.put("userId", this.getUserId());
+    if (this.getEmail() != null) {
+      metadata.put("email", this.getEmail());
+    }
+    return Collections.unmodifiableMap(metadata);
   }
 
   public void updateLocation(
@@ -353,10 +280,6 @@ public class Agent extends AuditableEntity {
     this.currentH3Index = h3Index;
     this.locationSource = source;
     this.lastLocationUpdatedAt = OffsetDateTime.now(ZoneOffset.UTC);
-  }
-
-  public void updateMaxConcurrentOrders(Short maxConcurrentOrders) {
-    this.maxConcurrentOrders = maxConcurrentOrders;
   }
 
   public void updateReliabilityScore(BigDecimal score) {

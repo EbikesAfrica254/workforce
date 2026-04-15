@@ -1,6 +1,5 @@
 package com.ebikes.workforce.database.specifications;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +23,7 @@ public final class SuspensionSpecifications {
   public static final Set<String> ALLOWED_SORT_FIELDS = Set.of(FIELD_CREATED_AT, FIELD_EXPIRES_AT);
 
   private SuspensionSpecifications() {
-    // prevent instantiaton
+    // prevent instantiation
   }
 
   public static Specification<Suspension> buildSpecification(SuspensionFilter filter) {
@@ -38,34 +37,23 @@ public final class SuspensionSpecifications {
           criteriaBuilder,
           filter.getAgentId(),
           hasAgentId(filter.getAgentId()));
-      FilterUtilities.addIfPresent(
+      FilterUtilities.addDateRange(
           predicates,
           root,
           query,
           criteriaBuilder,
+          FIELD_EXPIRES_AT,
           filter.getCreatedAtFrom(),
-          offsetDateTimeAfter(FIELD_CREATED_AT, filter.getCreatedAtFrom()));
-      FilterUtilities.addIfPresent(
+          filter.getCreatedAtTo());
+
+      FilterUtilities.addDateRange(
           predicates,
           root,
           query,
           criteriaBuilder,
-          filter.getCreatedAtTo(),
-          offsetDateTimeBefore(FIELD_CREATED_AT, filter.getCreatedAtTo()));
-      FilterUtilities.addIfPresent(
-          predicates,
-          root,
-          query,
-          criteriaBuilder,
+          FIELD_EXPIRES_AT,
           filter.getExpiresAtFrom(),
-          offsetDateTimeAfter(FIELD_EXPIRES_AT, filter.getExpiresAtFrom()));
-      FilterUtilities.addIfPresent(
-          predicates,
-          root,
-          query,
-          criteriaBuilder,
-          filter.getExpiresAtTo(),
-          offsetDateTimeBefore(FIELD_EXPIRES_AT, filter.getExpiresAtTo()));
+          filter.getExpiresAtTo());
 
       if (Boolean.TRUE.equals(filter.getIsActive())) {
         predicates.add(isActive().toPredicate(root, query, criteriaBuilder));
@@ -86,15 +74,5 @@ public final class SuspensionSpecifications {
 
   public static Specification<Suspension> isActive() {
     return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(FIELD_LIFTED_AT));
-  }
-
-  public static Specification<Suspension> offsetDateTimeAfter(
-      String fieldPath, OffsetDateTime after) {
-    return FilterUtilities.offsetDateTimeAfter(fieldPath, after);
-  }
-
-  public static Specification<Suspension> offsetDateTimeBefore(
-      String fieldPath, OffsetDateTime before) {
-    return FilterUtilities.offsetDateTimeBefore(fieldPath, before);
   }
 }

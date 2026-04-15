@@ -1,9 +1,11 @@
 package com.ebikes.workforce.database.entities;
 
-import java.io.Serial;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,14 +26,17 @@ import com.ebikes.workforce.enums.DocumentStatus;
 import com.ebikes.workforce.enums.DocumentType;
 import com.ebikes.workforce.enums.ResponseCode;
 import com.ebikes.workforce.exceptions.ValidationException;
+import com.ebikes.workforce.support.audit.Auditable;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 @Table(
     name = "documents",
     schema = "workforce",
@@ -41,9 +46,7 @@ import lombok.NoArgsConstructor;
       @Index(name = "idx_documents_expiry_date", columnList = "expiry_date"),
       @Index(name = "idx_documents_status", columnList = "status")
     })
-public class Document extends AuditableEntity {
-
-  @Serial private static final long serialVersionUID = 1L;
+public class Document extends AuditableEntity implements Auditable {
 
   @JoinColumn(name = "agent_id")
   @ManyToOne(fetch = FetchType.LAZY)
@@ -74,7 +77,7 @@ public class Document extends AuditableEntity {
 
   @Column(name = "status", nullable = false, length = 50)
   @Enumerated(EnumType.STRING)
-  @NotNull private DocumentStatus status = DocumentStatus.PENDING;
+  @NotNull private DocumentStatus status;
 
   @Column(name = "uploaded_at", columnDefinition = "TIMESTAMPTZ")
   private OffsetDateTime uploadedAt;
@@ -83,15 +86,14 @@ public class Document extends AuditableEntity {
   @Version
   private Long version;
 
-  public Document(
+  public static Document create(
       @NotNull DocumentType documentType, @NotBlank String fileName, @NotBlank String mimeType) {
-
-    this.documentType = documentType;
-    this.fileName = fileName;
-    this.mimeType = mimeType;
-    this.status = DocumentStatus.PENDING;
-    this.uploadedAt = OffsetDateTime.now(ZoneOffset.UTC);
-    this.version = 0L;
+    return Document.builder()
+        .documentType(documentType)
+        .fileName(fileName)
+        .mimeType(mimeType)
+        .status(DocumentStatus.PENDING)
+        .build();
   }
 
   public void activate() {
@@ -106,6 +108,13 @@ public class Document extends AuditableEntity {
   }
 
   public void assignStorageKey(@NotBlank String key) {
+    if (this.fileStorageUrl != null) {
+      throw new ValidationException(
+          ResponseCode.INVALID_STATE,
+          "Storage key has already been assigned",
+          "fileStorageUrl",
+          this.fileStorageUrl);
+    }
     this.fileStorageUrl = key;
   }
 
@@ -113,7 +122,6 @@ public class Document extends AuditableEntity {
     if (agent == null) {
       throw new IllegalArgumentException("Agent is required");
     }
-
     if (this.agent != null && !this.agent.equals(agent)) {
       throw new ValidationException(
           ResponseCode.INVALID_STATE,
@@ -121,7 +129,6 @@ public class Document extends AuditableEntity {
           "agent",
           this.agent.getId());
     }
-
     this.agent = agent;
   }
 
@@ -159,11 +166,11 @@ public class Document extends AuditableEntity {
           "status",
           this.status);
     }
-    this.status = DocumentStatus.UPLOADED;
-    this.uploadedAt = OffsetDateTime.now(ZoneOffset.UTC);
+    this.expiryDate = expiryDate;
     this.fileSizeBytes = fileSizeBytes;
     this.mimeType = mimeType;
-    this.expiryDate = expiryDate;
+    this.status = DocumentStatus.UPLOADED;
+    this.uploadedAt = OffsetDateTime.now(ZoneOffset.UTC);
   }
 
   public void reject() {
@@ -175,5 +182,20 @@ public class Document extends AuditableEntity {
           this.status);
     }
     this.status = DocumentStatus.REJECTED;
+  }
+
+  @Override
+  public Map<String, String> toAuditMetadata() {
+    Map<String, String> metadata = new HashMap<>();
+    metadata.put("documentType", this.documentType.name());
+    metadata.put("id", this.getId().toString());
+    metadata.put("status", this.status.name());
+    if (this.fileName != null) {
+      metadata.put("fileName", this.fileName);
+    }
+    if (this.agent != null) {
+      metadata.put("agentId", this.agent.getId().toString());
+    }
+    return Collections.unmodifiableMap(metadata);
   }
 }
