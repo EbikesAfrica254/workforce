@@ -1,6 +1,6 @@
 package com.ebikes.workforce.enums;
 
-import static com.ebikes.workforce.constants.EventConstants.EventSource.HOST;
+import static com.ebikes.workforce.constants.EventConstants.Source.HOST_SERVICE;
 
 import org.springframework.http.HttpStatus;
 
@@ -53,23 +53,23 @@ public enum ResponseCode {
 
   // Service-scoped — prefixed with service identifier
   INVALID_SECURITY_CODE(
-      HOST + ".INVALID_SECURITY_CODE",
+      HOST_SERVICE + ".INVALID_SECURITY_CODE",
       "The provided code is invalid or malformed.",
       HttpStatus.BAD_REQUEST),
   MAX_RETRIES_EXCEEDED(
-      HOST + ".MAX_RETRIES_EXCEEDED",
+      HOST_SERVICE + ".MAX_RETRIES_EXCEEDED",
       "The maximum number of attempts has been exceeded.",
       HttpStatus.BAD_REQUEST),
   SECURITY_CODE_ALREADY_USED(
-      HOST + ".SECURITY_CODE_ALREADY_USED",
+      HOST_SERVICE + ".SECURITY_CODE_ALREADY_USED",
       "This code has already been used.",
       HttpStatus.BAD_REQUEST),
   SECURITY_CODE_EXPIRED(
-      HOST + ".SECURITY_CODE_EXPIRED",
+      HOST_SERVICE + ".SECURITY_CODE_EXPIRED",
       "The code has expired. Please request a new one.",
       HttpStatus.BAD_REQUEST),
   SECURITY_CODE_TYPE_MISMATCH(
-      HOST + ".SECURITY_CODE_TYPE_MISMATCH",
+      HOST_SERVICE + ".SECURITY_CODE_TYPE_MISMATCH",
       "The code type does not match the expected type.",
       HttpStatus.BAD_REQUEST);
 
