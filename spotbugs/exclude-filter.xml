@@ -50,4 +50,41 @@
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
 
+    <!-- ========================================================================= -->
+    <!-- Specific false positives for immutable or Spring-managed singletons        -->
+    <!-- ========================================================================= -->
+
+    <!--
+      LocationService: stores a reference to H3Properties.
+      H3Properties is a @ConfigurationProperties bean, effectively immutable
+      after Spring initialization. Storing the reference is safe.
+    -->
+    <Match>
+        <Class name="com.ebikes.workforce.services.agents.location.LocationService"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Field name="h3Properties"/>
+    </Match>
+
+    <!--
+      PreferredAgentService: stores a reference to PreferredAgentRepository.
+      Spring Data repositories are singletons with immutable internal state.
+    -->
+    <Match>
+        <Class name="com.ebikes.workforce.services.preferences.PreferredAgentService"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Field name="preferredAgentRepository"/>
+    </Match>
+
+    <!--
+      Document.associate(Agent): stores a JPA-managed entity reference.
+      This is intentional JPA association; defensive copy is neither needed
+      nor desired in a persistence context.
+    -->
+    <Match>
+        <Class name="com.ebikes.workforce.database.entities.Document"/>
+        <Method name="associate"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
 </FindBugsFilter>
