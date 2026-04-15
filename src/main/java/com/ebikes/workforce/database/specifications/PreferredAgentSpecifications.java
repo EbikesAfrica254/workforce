@@ -23,7 +23,7 @@ public final class PreferredAgentSpecifications {
   public static final Set<String> ALLOWED_SORT_FIELDS = Set.of(FIELD_CREATED_AT, FIELD_PRIORITY);
 
   private PreferredAgentSpecifications() {
-    // prevent instantiaton
+    // prevent instantiation
   }
 
   public static Specification<PreferredAgent> buildSpecification(PreferredAgentFilter filter) {

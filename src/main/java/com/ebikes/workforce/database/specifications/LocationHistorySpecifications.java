@@ -1,9 +1,7 @@
 package com.ebikes.workforce.database.specifications;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.criteria.Predicate;
@@ -21,10 +19,8 @@ public final class LocationHistorySpecifications {
   public static final String FIELD_CREATED_AT = "createdAt";
   public static final String FIELD_SOURCE = "source";
 
-  public static final Set<String> ALLOWED_SORT_FIELDS = Set.of(FIELD_CREATED_AT);
-
   private LocationHistorySpecifications() {
-    // prevent instantiaton
+    // prevent instantiation
   }
 
   public static Specification<LocationHistory> buildSpecification(LocationHistoryFilter filter) {
@@ -33,20 +29,14 @@ public final class LocationHistorySpecifications {
 
       predicates.add(hasAgentId(filter.getAgentId()).toPredicate(root, query, criteriaBuilder));
 
-      FilterUtilities.addIfPresent(
+      FilterUtilities.addDateRange(
           predicates,
           root,
           query,
           criteriaBuilder,
+          FIELD_CREATED_AT,
           filter.getCreatedAtFrom(),
-          offsetDateTimeAfter(FIELD_CREATED_AT, filter.getCreatedAtFrom()));
-      FilterUtilities.addIfPresent(
-          predicates,
-          root,
-          query,
-          criteriaBuilder,
-          filter.getCreatedAtTo(),
-          offsetDateTimeBefore(FIELD_CREATED_AT, filter.getCreatedAtTo()));
+          filter.getCreatedAtTo());
       FilterUtilities.addIfPresent(
           predicates,
           root,
@@ -66,15 +56,5 @@ public final class LocationHistorySpecifications {
 
   public static Specification<LocationHistory> hasSource(LocationSource source) {
     return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(FIELD_SOURCE), source);
-  }
-
-  public static Specification<LocationHistory> offsetDateTimeAfter(
-      String fieldPath, OffsetDateTime after) {
-    return FilterUtilities.offsetDateTimeAfter(fieldPath, after);
-  }
-
-  public static Specification<LocationHistory> offsetDateTimeBefore(
-      String fieldPath, OffsetDateTime before) {
-    return FilterUtilities.offsetDateTimeBefore(fieldPath, before);
   }
 }

@@ -1,7 +1,6 @@
 package com.ebikes.workforce.database.specifications;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +38,7 @@ public final class AgentSpecifications {
           FIELD_RELIABILITY_SCORE);
 
   private AgentSpecifications() {
-    // prevent instantiaton
+    // prevent instantiation
   }
 
   public static Specification<Agent> buildSpecification(AgentFilter filter) {
@@ -63,20 +62,14 @@ public final class AgentSpecifications {
           criteriaBuilder,
           filter.getCapabilityClass(),
           hasCapabilityClass(filter.getCapabilityClass()));
-      FilterUtilities.addIfPresent(
+      FilterUtilities.addDateRange(
           predicates,
           root,
           query,
           criteriaBuilder,
+          FIELD_CREATED_AT,
           filter.getCreatedAtFrom(),
-          offsetDateTimeAfter(FIELD_CREATED_AT, filter.getCreatedAtFrom()));
-      FilterUtilities.addIfPresent(
-          predicates,
-          root,
-          query,
-          criteriaBuilder,
-          filter.getCreatedAtTo(),
-          offsetDateTimeBefore(FIELD_CREATED_AT, filter.getCreatedAtTo()));
+          filter.getCreatedAtTo());
       FilterUtilities.addIfPresent(
           predicates,
           root,
@@ -172,13 +165,5 @@ public final class AgentSpecifications {
       }
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     };
-  }
-
-  public static Specification<Agent> offsetDateTimeAfter(String fieldPath, OffsetDateTime after) {
-    return FilterUtilities.offsetDateTimeAfter(fieldPath, after);
-  }
-
-  public static Specification<Agent> offsetDateTimeBefore(String fieldPath, OffsetDateTime before) {
-    return FilterUtilities.offsetDateTimeBefore(fieldPath, before);
   }
 }
