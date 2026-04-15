@@ -1,6 +1,5 @@
 package com.ebikes.workforce.services.events;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,8 +56,9 @@ public class OutboxService {
   }
 
   @Transactional
-  public void save(String eventType, Serializable payload, String routingKey) {
-    Outbox outbox = new Outbox(eventType, payload, routingKey);
+  public void publish(String eventType, Object payload, String routingKey) {
+    Outbox outbox =
+        Outbox.builder().eventType(eventType).payload(payload).routingKey(routingKey).build();
 
     repository.save(outbox);
 
