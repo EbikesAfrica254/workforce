@@ -1,5 +1,13 @@
 package com.ebikes.workforce.services.agents;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ebikes.workforce.constants.EventConstants.DomainEvents;
 import com.ebikes.workforce.database.entities.Agent;
 import com.ebikes.workforce.database.projections.AgentConflictCheck;
@@ -22,14 +30,8 @@ import com.ebikes.workforce.support.audit.AuditTemplate;
 import com.ebikes.workforce.support.changes.SnapshotCreator;
 import com.ebikes.workforce.support.database.FilterUtilities;
 import com.ebikes.workforce.support.makerchecker.MakerCheckerTemplate;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
