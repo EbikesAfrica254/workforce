@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class MakerCheckerPublisher {
+public class MakerCheckerRequestPublisher {
 
   private final OutboxService outboxService;
 
@@ -22,7 +22,7 @@ public class MakerCheckerPublisher {
         request.entityId(),
         request.makerId());
 
-    outboxService.save(request.entityType(), request, routingKey);
+    outboxService.publish(request.entityType(), request, routingKey);
 
     log.info(
         "Maker-checker request queued: entityType={}, entityId={}",

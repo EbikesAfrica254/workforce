@@ -16,23 +16,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NotificationEventPublisher {
 
-  private final NotificationProperties properties;
   private final OutboxService outboxService;
+  private final NotificationProperties notificationProperties;
 
   public void publish(NotificationRequest request) {
     String routingKey = resolveRoutingKey(request.channel());
-
-    if (properties.isEnabled()) {
-      outboxService.save(request.eventType(), request, routingKey);
+    if (notificationProperties.isEnabled()) {
+      outboxService.publish(request.eventType(), request, routingKey);
+      log.info(
+          "Notification event queued - eventType={} channel={} recipient={}",
+          request.eventType(),
+          request.channel(),
+          request.recipient());
     } else {
-      log.info("Notification event skipped - notifications are disabled");
+      log.info("Notification service is disabled");
     }
-
-    log.info(
-        "Notification event queued - eventType={} channel={} recipient={}",
-        request.eventType(),
-        request.channel(),
-        request.recipient());
   }
 
   private String resolveRoutingKey(ChannelType channel) {
