@@ -49,12 +49,6 @@ public interface AgentRepository
       @Param("nationalId") String nationalId,
       @Param("userId") String userId);
 
-  boolean existsByNationalIdNumber(String nationalIdNumber);
-
-  boolean existsByPhoneNumber(String phoneNumber);
-
-  boolean existsByUserId(String userId);
-
   Optional<Agent> findByUserId(String userId);
 
   @Query(
