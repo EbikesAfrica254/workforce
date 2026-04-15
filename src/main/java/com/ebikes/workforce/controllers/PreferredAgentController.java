@@ -24,7 +24,7 @@ import com.ebikes.workforce.dtos.responses.api.PaginatedResponse;
 import com.ebikes.workforce.dtos.responses.api.SuccessResponse;
 import com.ebikes.workforce.dtos.responses.preferredagents.PreferredAgentDetailResponse;
 import com.ebikes.workforce.dtos.responses.preferredagents.PreferredAgentSummaryResponse;
-import com.ebikes.workforce.services.agents.PreferredAgentService;
+import com.ebikes.workforce.services.preferences.PreferredAgentService;
 
 import lombok.RequiredArgsConstructor;
 

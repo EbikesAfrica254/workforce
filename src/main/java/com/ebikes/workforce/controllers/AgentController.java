@@ -43,10 +43,12 @@ import com.ebikes.workforce.dtos.responses.paymentmethods.PaymentMethodDetailRes
 import com.ebikes.workforce.dtos.responses.paymentmethods.PaymentMethodSummaryResponse;
 import com.ebikes.workforce.enums.AvailabilityStatus;
 import com.ebikes.workforce.enums.LocationSource;
-import com.ebikes.workforce.services.agents.AgentService;
-import com.ebikes.workforce.services.agents.CertificationService;
-import com.ebikes.workforce.services.agents.PaymentMethodService;
-import com.ebikes.workforce.services.documents.DocumentService;
+import com.ebikes.workforce.services.agents.AgentsService;
+import com.ebikes.workforce.services.agents.availability.AvailabilityService;
+import com.ebikes.workforce.services.agents.certification.CertificationService;
+import com.ebikes.workforce.services.agents.document.DocumentService;
+import com.ebikes.workforce.services.agents.location.LocationService;
+import com.ebikes.workforce.services.agents.payment.PaymentMethodService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -55,16 +57,18 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class AgentController {
 
-  private final AgentService agentService;
+  private final AgentsService agentsService;
+  private final AvailabilityService availabilityService;
   private final CertificationService certificationService;
   private final DocumentService documentService;
+  private final LocationService locationService;
   private final PaymentMethodService paymentMethodService;
 
   @PreAuthorize("isAuthenticated()")
   @PostMapping
   public ResponseEntity<SuccessResponse<AgentDetailResponse>> create(
       @Valid @RequestBody CreateAgentRequest request) {
-    AgentDetailResponse response = agentService.create(request);
+    AgentDetailResponse response = agentsService.create(request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(SuccessResponse.of(response, "Agent registered successfully."));
   }
@@ -91,7 +95,7 @@ public class AgentController {
   @DeleteMapping("/{agentId}")
   public ResponseEntity<SuccessResponse<AgentDetailResponse>> deactivate(
       @PathVariable UUID agentId) {
-    AgentDetailResponse response = agentService.deactivate(agentId);
+    AgentDetailResponse response = agentsService.deactivate(agentId);
     return ResponseEntity.ok(SuccessResponse.of(response, "Agent deactivated successfully."));
   }
 
@@ -147,7 +151,15 @@ public class AgentController {
           + " 'BRANCH_FLEET_SUPPORT', 'SYSTEM_ADMIN')")
   @GetMapping("/{agentId}")
   public ResponseEntity<SuccessResponse<AgentDetailResponse>> getById(@PathVariable UUID agentId) {
-    AgentDetailResponse response = agentService.getById(agentId);
+    AgentDetailResponse response = agentsService.getById(agentId);
+    return ResponseEntity.ok(SuccessResponse.of(response));
+  }
+
+  @PreAuthorize("hasAuthority('AGENT')")
+  @GetMapping("/user/{userId}")
+  public ResponseEntity<SuccessResponse<AgentDetailResponse>> getByUserId(
+      @PathVariable String userId) {
+    AgentDetailResponse response = agentsService.getByUserId(userId);
     return ResponseEntity.ok(SuccessResponse.of(response));
   }
 
@@ -158,7 +170,8 @@ public class AgentController {
   @GetMapping("/{agentId}/availability-log")
   public ResponseEntity<SuccessResponse<Page<AvailabilityLogResponse>>> getAvailabilityLog(
       @PathVariable UUID agentId, Pageable pageable) {
-    Page<AvailabilityLogResponse> response = agentService.getAvailabilityLog(agentId, pageable);
+    Page<AvailabilityLogResponse> response =
+        availabilityService.getAvailabilityLog(agentId, pageable);
     return ResponseEntity.ok(SuccessResponse.of(response));
   }
 
@@ -170,7 +183,8 @@ public class AgentController {
   public ResponseEntity<SuccessResponse<Page<LocationHistoryResponse>>> getLocationHistory(
       @PathVariable UUID agentId, LocationHistoryFilter filter, Pageable pageable) {
     filter.setAgentId(agentId);
-    return ResponseEntity.ok(SuccessResponse.of(agentService.getLocationHistory(filter, pageable)));
+    return ResponseEntity.ok(
+        SuccessResponse.of(locationService.getLocationHistory(filter, pageable)));
   }
 
   @PreAuthorize("hasAnyAuthority('AGENT', 'BRANCH_ADMIN', 'ORGANIZATION_ADMIN', 'SYSTEM_ADMIN')")
@@ -191,7 +205,7 @@ public class AgentController {
   @PreAuthorize("hasAuthority('AGENT')")
   @PostMapping("/{agentId}/resubmit")
   public ResponseEntity<SuccessResponse<AgentDetailResponse>> resubmit(@PathVariable UUID agentId) {
-    AgentDetailResponse response = agentService.resubmit(agentId);
+    AgentDetailResponse response = agentsService.resubmit(agentId);
     return ResponseEntity.ok(SuccessResponse.of(response, "Agent resubmitted successfully."));
   }
 
@@ -199,7 +213,7 @@ public class AgentController {
   @GetMapping
   public ResponseEntity<PaginatedResponse<AgentSummaryResponse>> search(
       @ModelAttribute AgentFilter filter) {
-    return ResponseEntity.ok((agentService.search(filter)));
+    return ResponseEntity.ok((agentsService.search(filter)));
   }
 
   @PreAuthorize("hasAuthority('AGENT')")
@@ -216,7 +230,7 @@ public class AgentController {
   @PatchMapping("/{agentId}")
   public ResponseEntity<SuccessResponse<AgentDetailResponse>> update(
       @PathVariable UUID agentId, @Valid @RequestBody UpdateAgentRequest request) {
-    AgentDetailResponse response = agentService.update(agentId, request);
+    AgentDetailResponse response = agentsService.update(agentId, request);
     return ResponseEntity.ok(SuccessResponse.of(response, "Agent updated successfully."));
   }
 
@@ -228,7 +242,7 @@ public class AgentController {
       @PathVariable UUID agentId,
       @RequestParam AvailabilityStatus status,
       @RequestParam(required = false) String reason) {
-    AgentDetailResponse response = agentService.updateAvailability(agentId, status, reason);
+    AgentDetailResponse response = availabilityService.updateAvailability(agentId, status, reason);
     return ResponseEntity.ok(SuccessResponse.of(response, "Availability updated successfully."));
   }
 
@@ -237,7 +251,7 @@ public class AgentController {
   public ResponseEntity<SuccessResponse<AgentDetailResponse>> updateLocation(
       @PathVariable UUID agentId, @Valid @RequestBody UpdateLocationRequest request) {
     AgentDetailResponse response =
-        agentService.updateLocation(agentId, request, LocationSource.WEB_BROWSER);
+        locationService.updateLocation(agentId, request, LocationSource.WEB_BROWSER);
     return ResponseEntity.ok(SuccessResponse.of(response, "Location updated successfully."));
   }
 

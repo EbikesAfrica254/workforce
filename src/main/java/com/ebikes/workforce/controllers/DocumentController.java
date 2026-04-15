@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ import com.ebikes.workforce.dtos.responses.documents.DocumentResponse;
 import com.ebikes.workforce.dtos.responses.documents.UploadInitiationResponse;
 import com.ebikes.workforce.enums.CapabilityClass;
 import com.ebikes.workforce.enums.DocumentType;
-import com.ebikes.workforce.services.documents.DocumentService;
+import com.ebikes.workforce.services.agents.document.IOService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,49 +32,57 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class DocumentController {
 
-  private final DocumentService documentService;
+  private final IOService ioService;
 
-  @PostMapping("/initiate-upload")
-  public ResponseEntity<SuccessResponse<UploadInitiationResponse>> initiateUpload(
-      @Valid @RequestBody InitiateUploadRequest request) {
-    UploadInitiationResponse response = documentService.initiateUpload(request);
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(SuccessResponse.of(response, "Upload initiated successfully."));
-  }
-
-  @GetMapping("/capability-classes/{capabilityClass}/required-documents")
-  public ResponseEntity<SuccessResponse<Set<DocumentType>>> getRequiredDocuments(
-      @PathVariable CapabilityClass capabilityClass) {
-    return ResponseEntity.ok(SuccessResponse.of(capabilityClass.getRequiredDocuments()));
-  }
-
-  @PutMapping("/{id}/confirm-upload")
-  public ResponseEntity<SuccessResponse<DocumentResponse>> confirmUpload(
-      @PathVariable UUID id, @Valid @RequestBody ConfirmUploadRequest request) {
-    DocumentResponse response = documentService.confirmUpload(id, request);
-    return ResponseEntity.ok(SuccessResponse.of(response, "Document upload confirmed."));
-  }
-
-  @GetMapping("/{id}/download")
-  public ResponseEntity<SuccessResponse<String>> download(@PathVariable UUID id) {
-    String downloadUrl = documentService.download(id);
-    return ResponseEntity.ok(SuccessResponse.of(downloadUrl, "Download URL generated"));
-  }
-
-  @PostMapping("/{id}/replace")
-  public ResponseEntity<SuccessResponse<UploadInitiationResponse>> replaceDocument(
-      @PathVariable UUID id, @Valid @RequestBody InitiateUploadRequest request) {
-    UploadInitiationResponse response =
-        documentService.replaceDocument(id, request.fileName(), request.contentType());
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(SuccessResponse.of(response, "Document replacement initiated"));
-  }
-
+  @PreAuthorize("hasAuthority('AGENT')")
   @PutMapping("/{id}/confirm-replacement")
   public ResponseEntity<SuccessResponse<DocumentResponse>> confirmReplacement(
       @PathVariable UUID id, @Valid @RequestBody ConfirmUploadRequest request) {
-    DocumentResponse response = documentService.confirmReplacement(id, request);
     return ResponseEntity.ok(
-        SuccessResponse.of(response, "Document replacement confirmed and submitted for approval"));
+        SuccessResponse.of(
+            ioService.confirmReplacement(id, request),
+            "Document replacement confirmed and submitted for approval."));
+  }
+
+  @PreAuthorize("isAuthenticated()")
+  @PutMapping("/{id}/confirm-upload")
+  public ResponseEntity<SuccessResponse<DocumentResponse>> confirmUpload(
+      @PathVariable UUID id, @Valid @RequestBody ConfirmUploadRequest request) {
+    return ResponseEntity.ok(
+        SuccessResponse.of(ioService.confirmUpload(id, request), "Document upload confirmed."));
+  }
+
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/{id}/download")
+  public ResponseEntity<SuccessResponse<String>> download(@PathVariable UUID id) {
+    return ResponseEntity.ok(SuccessResponse.of(ioService.download(id), "Download URL generated."));
+  }
+
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/workforce-classes/{workforceClass}/required-documents")
+  public ResponseEntity<SuccessResponse<Set<DocumentType>>> getRequiredDocuments(
+      @PathVariable CapabilityClass workforceClass) {
+    return ResponseEntity.ok(SuccessResponse.of(workforceClass.getRequiredDocuments()));
+  }
+
+  @PreAuthorize("isAuthenticated()")
+  @PostMapping("/initiate-upload")
+  public ResponseEntity<SuccessResponse<UploadInitiationResponse>> initiateUpload(
+      @Valid @RequestBody InitiateUploadRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(
+            SuccessResponse.of(
+                ioService.initiateUpload(request), "Upload initiated successfully."));
+  }
+
+  @PreAuthorize("hasAuthority('AGENT')")
+  @PostMapping("/{id}/replace")
+  public ResponseEntity<SuccessResponse<UploadInitiationResponse>> replaceDocument(
+      @PathVariable UUID id, @Valid @RequestBody InitiateUploadRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(
+            SuccessResponse.of(
+                ioService.replaceDocument(id, request.fileName(), request.contentType()),
+                "Document replacement initiated."));
   }
 }

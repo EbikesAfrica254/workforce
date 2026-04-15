@@ -35,9 +35,9 @@ public class OutboxController {
   }
 
   @PatchMapping("/{id}/retry")
-  public ResponseEntity<Void> retry(@PathVariable UUID id) {
+  public ResponseEntity<SuccessResponse<Void>> retry(@PathVariable UUID id) {
     outboxService.retry(id);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok(SuccessResponse.of(null));
   }
 
   @PostMapping("/failed/retry")

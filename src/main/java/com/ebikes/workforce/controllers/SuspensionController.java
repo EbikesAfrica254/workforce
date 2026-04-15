@@ -22,7 +22,7 @@ import com.ebikes.workforce.dtos.responses.api.PaginatedResponse;
 import com.ebikes.workforce.dtos.responses.api.SuccessResponse;
 import com.ebikes.workforce.dtos.responses.suspensions.SuspensionDetailResponse;
 import com.ebikes.workforce.dtos.responses.suspensions.SuspensionSummaryResponse;
-import com.ebikes.workforce.services.agents.SuspensionService;
+import com.ebikes.workforce.services.agents.suspension.SuspensionService;
 
 import lombok.RequiredArgsConstructor;
 
