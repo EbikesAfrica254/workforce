@@ -44,7 +44,7 @@ spring:
       bindings:
         incomingEventConsumer-in-0:
           destination: ebikes.domain-events
-          group: ebikes.capability.incoming
+          group: ebikes.workforce.incoming
         eventPublisher-out-0:
           destination: ebikes.domain-events
       rabbit:
