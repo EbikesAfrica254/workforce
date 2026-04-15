@@ -1,4 +1,4 @@
-package com.ebikes.workforce.support.workforce;
+package com.ebikes.workforce.support.capability;
 
 import java.util.Set;
 
@@ -8,7 +8,7 @@ import com.ebikes.workforce.enums.VehicleClass;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class CapabilityClassMapper {
+public class CapabilityClassResolver {
 
   public static VehicleClass toVehicleClass(CapabilityClass capabilityClass) {
     return switch (capabilityClass) {
