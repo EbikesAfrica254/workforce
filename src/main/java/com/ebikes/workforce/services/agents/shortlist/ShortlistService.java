@@ -1,4 +1,4 @@
-package com.ebikes.workforce.services.agents;
+package com.ebikes.workforce.services.agents.shortlist;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -10,9 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ebikes.workforce.configurations.properties.H3Properties;
 import com.ebikes.workforce.configurations.properties.ShortlistProperties;
-import com.ebikes.workforce.constants.EventConstants.EventSource;
-import com.ebikes.workforce.constants.EventConstants.EventTypes;
+import com.ebikes.workforce.constants.EventConstants.DomainEvents;
 import com.ebikes.workforce.constants.EventConstants.RoutingKeys;
+import com.ebikes.workforce.constants.EventConstants.Source;
 import com.ebikes.workforce.database.entities.Agent;
 import com.ebikes.workforce.database.repositories.AgentRepository;
 import com.ebikes.workforce.database.repositories.PreferredAgentRepository;
@@ -24,7 +24,7 @@ import com.ebikes.workforce.enums.AvailabilityStatus;
 import com.ebikes.workforce.enums.CapabilityClass;
 import com.ebikes.workforce.enums.VehicleClass;
 import com.ebikes.workforce.services.events.OutboxService;
-import com.ebikes.workforce.support.workforce.CapabilityClassMapper;
+import com.ebikes.workforce.support.capability.CapabilityClassResolver;
 import com.uber.h3core.H3Core;
 
 import lombok.RequiredArgsConstructor;
@@ -60,11 +60,12 @@ public class ShortlistService {
     List<String> searchCells =
         h3Core.gridDisk(pickupH3Index, shortlistProperties.getDefaultRingSize());
 
+    OffsetDateTime now = OffsetDateTime.now();
     OffsetDateTime freshnessThreshold =
-        OffsetDateTime.now().minusMinutes(shortlistProperties.getFreshThresholdMinutes());
+        now.minusMinutes(shortlistProperties.getFreshThresholdMinutes());
 
     Set<CapabilityClass> eligibleCapabilityClasses =
-        CapabilityClassMapper.fromVehicleClass(request.vehicleClass());
+        CapabilityClassResolver.fromVehicleClass(request.vehicleClass());
 
     List<Agent> eligibleAgents =
         agentRepository.findEligibleForShortlist(
@@ -79,39 +80,39 @@ public class ShortlistService {
           request.orderId(),
           pickupH3Index);
 
-      outboxService.save(
-          EventTypes.Workforce.AGENT_SHORTLIST_EMPTY,
-          buildEmptyEvent(request, pickupH3Index),
+      outboxService.publish(
+          DomainEvents.Shortlist.EMPTY,
+          buildEmptyEvent(request, pickupH3Index, now),
           RoutingKeys.WORKFORCE_SHORTLIST_EMPTY);
 
       return;
     }
 
-    Set<String> preferredAgentIds = resolvePreferredAgentIds(request);
+    Set<UUID> preferredAgentIds = resolvePreferredAgentIds(request);
 
     List<ShortlistCandidate> candidates =
         eligibleAgents.stream().map(agent -> toCandidate(agent, preferredAgentIds)).toList();
 
-    OffsetDateTime resolvedAt = OffsetDateTime.now();
-    OffsetDateTime expiresAt = resolvedAt.plusSeconds(shortlistProperties.getExpirySeconds());
+    OffsetDateTime expiresAt = now.plusSeconds(shortlistProperties.getExpirySeconds());
 
-    outboxService.save(
-        EventTypes.Workforce.AGENT_SHORTLIST_RESOLVED,
-        buildResolvedEvent(request, candidates, resolvedAt, expiresAt),
+    outboxService.publish(
+        DomainEvents.Shortlist.RESOLVED,
+        buildResolvedEvent(request, candidates, now, expiresAt),
         RoutingKeys.WORKFORCE_SHORTLIST_RESOLVED);
 
     log.info(
         "Shortlist resolved: orderId={}, candidateCount={}", request.orderId(), candidates.size());
   }
 
-  private AgentShortlistEmptyEvent buildEmptyEvent(ShortlistRequest request, String pickupH3Index) {
+  private AgentShortlistEmptyEvent buildEmptyEvent(
+      ShortlistRequest request, String pickupH3Index, OffsetDateTime now) {
     return new AgentShortlistEmptyEvent(
         request.branchId(),
         request.orderId(),
         request.organizationId(),
         pickupH3Index,
-        OffsetDateTime.now(),
-        EventSource.serviceReference(),
+        now,
+        Source.serviceReference(),
         request.vehicleClass());
   }
 
@@ -124,13 +125,13 @@ public class ShortlistService {
     List<AgentShortlistResolvedEvent.Candidate> candidatePayloads =
         candidates.stream()
             .map(
-                c ->
+                candidate ->
                     new AgentShortlistResolvedEvent.Candidate(
-                        c.agentId().toString(),
-                        c.isPreferred(),
-                        c.latitude(),
-                        c.longitude(),
-                        c.vehicleClass()))
+                        candidate.agentId().toString(),
+                        candidate.isPreferred(),
+                        candidate.latitude(),
+                        candidate.longitude(),
+                        candidate.vehicleClass()))
             .toList();
 
     return new AgentShortlistResolvedEvent(
@@ -140,10 +141,10 @@ public class ShortlistService {
         request.orderId(),
         request.organizationId(),
         resolvedAt,
-        EventSource.serviceReference());
+        Source.serviceReference());
   }
 
-  private Set<String> resolvePreferredAgentIds(ShortlistRequest request) {
+  private Set<UUID> resolvePreferredAgentIds(ShortlistRequest request) {
     if (request.organizationId() == null) {
       return Set.of();
     }
@@ -154,12 +155,12 @@ public class ShortlistService {
                 request.organizationId(), request.branchId())
             : preferredAgentRepository.findAgentIdsByOrganizationId(request.organizationId());
 
-    return Set.copyOf(preferredIds.stream().map(UUID::toString).toList());
+    return Set.copyOf(preferredIds);
   }
 
-  private ShortlistCandidate toCandidate(Agent agent, Set<String> preferredAgentIds) {
-    VehicleClass vehicleClass = CapabilityClassMapper.toVehicleClass(agent.getCapabilityClass());
-    boolean isPreferred = preferredAgentIds.contains(agent.getId().toString());
+  private ShortlistCandidate toCandidate(Agent agent, Set<UUID> preferredAgentIds) {
+    VehicleClass vehicleClass = CapabilityClassResolver.toVehicleClass(agent.getCapabilityClass());
+    boolean isPreferred = preferredAgentIds.contains(agent.getId());
 
     return new ShortlistCandidate(
         agent.getId(),
