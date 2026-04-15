@@ -1,6 +1,5 @@
 package com.ebikes.workforce.database.entities;
 
-import java.io.Serial;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -22,10 +21,12 @@ import com.ebikes.workforce.enums.LocationSource;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 @Table(
     name = "location_history",
     schema = "workforce",
@@ -34,8 +35,6 @@ import lombok.NoArgsConstructor;
       @Index(name = "idx_location_history_created_at", columnList = "created_at")
     })
 public class LocationHistory extends BaseEntity {
-
-  @Serial private static final long serialVersionUID = 1L;
 
   @Column(name = "agent_id", nullable = false, updatable = false)
   @NotNull private UUID agentId;
@@ -53,16 +52,18 @@ public class LocationHistory extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @NotNull private LocationSource source;
 
-  public LocationHistory(
+  public static LocationHistory create(
       UUID agentId,
       BigDecimal latitude,
       BigDecimal longitude,
       String h3Index,
       LocationSource source) {
-    this.agentId = agentId;
-    this.latitude = latitude;
-    this.longitude = longitude;
-    this.h3Index = h3Index;
-    this.source = source;
+    return LocationHistory.builder()
+        .agentId(agentId)
+        .latitude(latitude)
+        .longitude(longitude)
+        .h3Index(h3Index)
+        .source(source)
+        .build();
   }
 }
