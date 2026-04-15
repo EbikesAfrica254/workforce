@@ -5,9 +5,9 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record AssignmentSucceededEvent(
+public record AssignmentCompletedEvent(
     UUID assignmentId,
     UUID orderId,
     String organizationId,
     String serviceReference,
-    String winnerAgentId) {}
+    UUID winnerAgentId) {}

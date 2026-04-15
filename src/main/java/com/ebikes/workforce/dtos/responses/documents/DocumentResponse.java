@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record DocumentResponse(
-    UUID agentId,
     UUID id,
     OffsetDateTime createdAt,
     DocumentType documentType,

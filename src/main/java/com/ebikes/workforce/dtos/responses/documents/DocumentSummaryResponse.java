@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record DocumentSummaryResponse(
-    UUID agentId,
     DocumentType documentType,
     LocalDate expiryDate,
     String fileName,

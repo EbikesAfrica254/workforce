@@ -1,6 +1,5 @@
 package com.ebikes.workforce.dtos.events.outgoing;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -15,8 +14,7 @@ public record AgentShortlistResolvedEvent(
     UUID orderId,
     String organizationId,
     OffsetDateTime resolvedAt,
-    String serviceReference)
-    implements Serializable {
+    String serviceReference) {
 
   public AgentShortlistResolvedEvent {
     candidates = candidates == null ? null : List.copyOf(candidates);
