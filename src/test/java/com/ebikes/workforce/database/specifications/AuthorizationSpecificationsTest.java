@@ -33,15 +33,17 @@ class AuthorizationSpecificationsTest extends AbstractRepositoryTest {
   private static final String ORGANIZATION_B = SecurityFixtures.OTHER_ORGANIZATION_ID;
   private static final String BRANCH_A = "branch-001";
 
-    @Autowired private AgentRepository agentRepository;
+  @Autowired private AgentRepository agentRepository;
   @Autowired private PreferredAgentRepository preferredAgentRepository;
 
-    @BeforeEach
+  @BeforeEach
   void setUp() {
     SecurityFixtures.setExecutionContext(ORGANIZATION_A, null, UserRole.SYSTEM_ADMIN);
 
-      Agent agentA = agentRepository.save(agent("NID-A01", "+254700000020", SecurityFixtures.TEST_USER_ID));
-        Agent agentB = agentRepository.save(agent("NID-B01", "+254700000021", SecurityFixtures.OTHER_USER_ID));
+    Agent agentA =
+        agentRepository.save(agent("NID-A01", "+254700000020", SecurityFixtures.TEST_USER_ID));
+    Agent agentB =
+        agentRepository.save(agent("NID-B01", "+254700000021", SecurityFixtures.OTHER_USER_ID));
 
     preferredAgentRepository.saveAll(
         List.of(
